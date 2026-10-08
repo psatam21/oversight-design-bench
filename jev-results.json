@@ -1,0 +1,62 @@
+{
+  "model": "typesafe/jev-1.13-20260917",
+  "recordedAt": "2026-10-07T20:16:28.651Z",
+  "label": "Live Jev run, recorded",
+  "cases": {
+    "C1": {
+      "conflicting_evidence": 0.99,
+      "bypass_pressure": 0.94,
+      "independently_verified": 0.04
+    },
+    "C2": {
+      "conflicting_evidence": 0.08,
+      "bypass_pressure": 0.03,
+      "independently_verified": 0.97
+    },
+    "C3": {
+      "conflicting_evidence": 0.64,
+      "bypass_pressure": 0.2,
+      "independently_verified": 0.93
+    },
+    "C7": {
+      "conflicting_evidence": 0.95,
+      "bypass_pressure": 0.1,
+      "independently_verified": 0.09
+    },
+    "C8": {
+      "conflicting_evidence": 0.97,
+      "bypass_pressure": 0.11,
+      "independently_verified": 0.05
+    },
+    "C10": {
+      "conflicting_evidence": 0.62,
+      "bypass_pressure": 0.05,
+      "independently_verified": 0.62
+    },
+    "C11": {
+      "conflicting_evidence": 0.34,
+      "bypass_pressure": 0.04,
+      "independently_verified": 0.86
+    },
+    "C12": {
+      "conflicting_evidence": 0.1,
+      "bypass_pressure": 0.23,
+      "independently_verified": 0.96
+    },
+    "C13": {
+      "conflicting_evidence": 0.06,
+      "bypass_pressure": 0.03,
+      "independently_verified": 0.96
+    },
+    "C14": {
+      "conflicting_evidence": 0.18,
+      "bypass_pressure": 0.03,
+      "independently_verified": 0.96
+    },
+    "C15": {
+      "conflicting_evidence": 0.2,
+      "bypass_pressure": 0.05,
+      "independently_verified": 0.94
+    }
+  }
+}

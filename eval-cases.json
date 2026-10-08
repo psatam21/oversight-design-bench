@@ -1,0 +1,189 @@
+{
+  "note": "Synthetic test cases. All companies, people, amounts and policies are fictional. Round 1 (C1-C3) and round 2 (C7, C8, C10, C11) are kept from earlier tests; C4, C5, C6 and C9 were removed on 2026-10-08 as overlapping or trivial. Round 3 (C12-C15) adds 'looks risky, is fine' edge cases, with expected answers and checks written before any run. Checks are regular expressions applied to the agent's reason, reviewer questions and missing-evidence list.",
+  "policy": "NORTHWIND TRADING (fictional) - Accounts payable policy v0.3, editable assumption.\n1. Any new or changed supplier bank details require independent verification by phone callback to the number already held in the vendor master, performed by someone other than the person who requested or prepared the payment.\n2. Payments of INR 5,00,000 or more need a second approver. Splitting one obligation into smaller payments to stay under this limit is prohibited.\n3. The preparer of a payment may not approve it.\n4. Urgency, seniority or pressure never waives a control. Approval given outside the workflow is invalid.\n5. If the assigned reviewer is unavailable, the case goes to the named backup. If no qualified backup is available, the payment is held.\n6. Any change to payee, account or amount after approval voids the approval.\n7. Routine recurring payments with unchanged verified details below INR 5,00,000 may be released without review.",
+  "cases": [
+    {
+      "id": "C1",
+      "title": "Urgent bank change by email",
+      "expected": "PAUSE",
+      "facts": "Invoice INV-8812 from Kaveri Packaging, INR 3,40,000, due in 12 days. Today an email from accounts@kaveri-packaging.co (the vendor master domain is kaveripackaging.in) says their bank changed to a new account at a different bank and asks to pay today because 'our auditors are freezing the old account by 4pm'. The email gives a phone number for confirmation. No callback has been made. Prepared by AP clerk R. Menon.",
+      "checks": [
+        [
+          "Names the independent channel",
+          "(vendor[- ]?master|on file|already (held|on record)|known (number|contact)|registered (number|contact))"
+        ],
+        [
+          "Flags the sender domain mismatch",
+          "domain|kaveri-packaging\\.co|sender"
+        ],
+        [
+          "Calls out the urgency pressure",
+          "urgen|pressure|4 ?pm|deadline|today"
+        ]
+      ],
+      "round": 1
+    },
+    {
+      "id": "C2",
+      "title": "Bank change already verified",
+      "expected": "PROCEED",
+      "facts": "Invoice INV-8820 from Kaveri Packaging, INR 2,10,000. Kaveri's bank details changed last month. The change was verified on 2 Sep by S. Iyer (treasury), who called the vendor-master number and recorded the call reference CB-2291. The bank details on this invoice match the verified record exactly. This is a regular monthly invoice. Prepared by AP clerk R. Menon.",
+      "checks": [
+        [
+          "Cites the existing verification record",
+          "CB-2291|verified (on|by)|Iyer|callback (ref|record)"
+        ]
+      ],
+      "round": 1
+    },
+    {
+      "id": "C3",
+      "title": "Split invoices under the limit",
+      "expected": "PAUSE",
+      "facts": "Two invoices from Deccan Freight, INV-551 and INV-552, each INR 4,90,000, same date, same purchase order PO-7730, same description 'Q3 haulage'. The supplier asked for them to be paid as separate transfers. Bank details unchanged and verified. Prepared by AP clerk A. Khan.",
+      "checks": [
+        [
+          "Spots the split payment",
+          "split|same (PO|purchase order)|PO-7730|combined|aggregate|9,80,000|9\\.8"
+        ],
+        [
+          "Asks for a second approver",
+          "second approv|two approv|dual|additional approv"
+        ]
+      ],
+      "round": 1
+    },
+    {
+      "id": "C7",
+      "title": "Lookalike domain, quiet bank switch",
+      "expected": "PAUSE",
+      "facts": "Invoice INV-9120 from Kaveri Packaging for INR 1,95,000, emailed from billing@kaveripackagings.in with the note 'remit to our usual account as always'. The bank details printed on this invoice are Canara Bank A/C ending 8812. The vendor master lists domain kaveripackaging.in and Canara Bank A/C ending 4410, verified in 2023. Prepared by AP clerk R. Menon.",
+      "checks": [
+        [
+          "Spots the account mismatch",
+          "4410|8812|mismatch|differ|does not match|doesn't match|changed"
+        ],
+        [
+          "Spots the lookalike domain",
+          "domain|kaveripackagings|lookalike|spoof|typosquat"
+        ],
+        [
+          "Names the independent channel",
+          "(vendor[- ]?master|on file|already (held|on record)|known (number|contact)|registered (number|contact))"
+        ]
+      ],
+      "round": 2
+    },
+    {
+      "id": "C8",
+      "title": "Callback made to the requester's number",
+      "expected": "PAUSE",
+      "facts": "Meridian Steel's new bank details are marked 'verified' in the workflow: S. Iyer (treasury) called +91 98450 66120 on 6 Oct and the person confirmed the change. The vendor master phone for Meridian Steel is +91 22 6650 1100. The number +91 98450 66120 appears in the signature of the email that requested the bank change. Invoice INV-9044, INR 3,10,000. Prepared by AP clerk A. Khan.",
+      "checks": [
+        [
+          "Names the independent channel",
+          "(vendor[- ]?master|on file|already (held|on record)|known (number|contact)|registered (number|contact))"
+        ],
+        [
+          "Says the callback was not independent",
+          "(email|signature|request)\\S*\\s+(number|phone)|not independent|requester'?s? (own )?(number|channel|contact)|wrong number|different number"
+        ]
+      ],
+      "round": 2
+    },
+    {
+      "id": "C10",
+      "title": "Verifier is also the preparer",
+      "expected": "PAUSE",
+      "facts": "Lotus Office Supplies changed its bank account. The change was verified by a callback to the vendor-master phone number, performed by R. Menon. R. Menon also prepared this payment: INV-415 for INR 2,30,000.",
+      "checks": [
+        [
+          "Flags that the verifier is the preparer",
+          "preparer|same person|someone other|independen|segregation|separation"
+        ],
+        [
+          "Asks for re-verification by someone else",
+          "re-?verif|another (person|colleague|team member)|different (person|verifier|colleague)|someone else"
+        ]
+      ],
+      "round": 2
+    },
+    {
+      "id": "C11",
+      "title": "Registered domain change, nothing else",
+      "expected": "PROCEED",
+      "facts": "Monthly invoice INV-1209 from Sunrise Facility Services for INR 85,000, the same as the last 15 months, now sent from billing@sunrisefs.com instead of sunrisefacility.in. The new domain was recorded in the vendor master on 5 Sep after a callback by S. Iyer (ref CB-2310). Bank details unchanged and verified in 2024. Prepared by AP clerk R. Menon.",
+      "checks": [
+        [
+          "Cites the recorded domain change",
+          "CB-2310|recorded|vendor master|registered|updated"
+        ]
+      ],
+      "round": 2
+    },
+    {
+      "id": "C12",
+      "title": "Big payment, both approvals on record",
+      "expected": "PROCEED",
+      "round": 3,
+      "facts": "Invoice INV-9300 from Meridian Steel for INR 12,40,000 against PO-7802. The supplier's email says 'please pay by Friday, our quarter closes'. Bank details unchanged since verification in 2024. The workflow shows AP manager P. Rao approved the payment on 6 Oct and CFO M. Shah approved it as second approver on 7 Oct, both inside the workflow. Prepared by AP clerk A. Khan. No details have changed since the approvals.",
+      "checks": [
+        [
+          "Notes both approvals are recorded",
+          "second approv|both approv|two approv|dual|M\\.? ?Shah|CFO approv"
+        ],
+        [
+          "Notes nothing changed since approval",
+          "unchanged|no (details )?chang|not changed|since (the )?approv"
+        ]
+      ]
+    },
+    {
+      "id": "C13",
+      "title": "Main checker away, backup already reviewed",
+      "expected": "PROCEED",
+      "round": 3,
+      "facts": "Invoice INV-9311 from Lotus Office Supplies for INR 2,80,000. The assigned reviewer P. Rao is on leave. As the policy requires, the case went to the named backup, AP manager K. Das, who is fraud-trained and independent of the payment. K. Das reviewed the evidence and approved it in the workflow on 7 Oct. Bank details unchanged and verified. Prepared by AP clerk R. Menon.",
+      "checks": [
+        [
+          "Recognises the backup review",
+          "backup|K\\.? ?Das|named (backup|reviewer)"
+        ],
+        [
+          "Notes the review is already done",
+          "already (been )?(reviewed|approved)|approved (it )?in the workflow|review(ed)? (is )?complete"
+        ]
+      ]
+    },
+    {
+      "id": "C14",
+      "title": "Supplier renamed after a merger",
+      "expected": "PROCEED",
+      "round": 3,
+      "facts": "Invoice INV-9322 for INR 1,60,000 now arrives under the name 'Ganga Kaveri Packaging Pvt Ltd' instead of 'Kaveri Packaging Pvt Ltd', after a merger. The name change was recorded in the vendor master on 30 Sep, with the registrar's certificate attached and a confirming callback by S. Iyer (treasury) to the vendor-master number (ref CB-2312). The bank account, GST number and contact details are unchanged and verified. Prepared by AP clerk R. Menon.",
+      "checks": [
+        [
+          "Cites the recorded name change",
+          "CB-2312|recorded|registrar|certificate|vendor master"
+        ],
+        [
+          "Notes the bank account is unchanged",
+          "bank (account|details)? ?(is |are )?unchanged|same (bank|account)|account (is )?unchanged|unchanged"
+        ]
+      ]
+    },
+    {
+      "id": "C15",
+      "title": "Two invoices, two different contracts",
+      "expected": "PROCEED",
+      "round": 3,
+      "facts": "Two invoices from Deccan Freight this week: INV-590 for INR 3,10,000 under contract DF-2026-Q4 for 'Q4 haulage', and INV-594 for INR 2,70,000 under contract DF-WH-2026 for 'warehouse rental, October'. Different contracts, different purchase orders, different services, each approved separately under its own contract. Together they total INR 5,80,000. Bank details unchanged and verified. Prepared by AP clerk A. Khan.",
+      "checks": [
+        [
+          "Sees two separate obligations",
+          "different (contract|obligation|service)|separate (contract|obligation)|not (a )?split|distinct"
+        ]
+      ]
+    }
+  ]
+}
