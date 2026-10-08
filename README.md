@@ -29,6 +29,7 @@ All companies, people, amounts and policies are fictional. No real money moves.
 - `api/health.js`, `api/_guard.js`: status check and passcode gate for every API call
 - `eval-cases.json`, `recorded-runs.json`, `jev-results.json`, `v2-runs.json`: test cases and recorded results
 - `Presenter-Guide-final.docx`: step-by-step guide for presenting the demo
+- `Project-Report-OnePager.docx`: one-page project report
 - `DECISIONS.md`: log of design decisions and why they were made
 
 Hosted on Vercel. API keys live only in Vercel's environment settings and are never in this repository.
