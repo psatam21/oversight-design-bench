@@ -7,6 +7,10 @@
 **Open questions:** Optional policy v0.4 to fix the rule-6 ambiguity. Rehearsal approach.
 
 ## Decision log
+### 2026-10-09 - Public GitHub repo for submission
+**Decided:** The project is pushed to https://github.com/psatam21/oversight-design-bench (public). .env, .vercel and the old guide are excluded; a README has been added.
+**Why:** The user needs to submit the repo and chose public.
+**Consequence:** Before every push, check that .env values are absent (done for the first push: none found in 19 files). The v1-to-v2 card was removed from the site at the user's request.
 ### 2026-10-08 - Telegram: one listener per browser, shared with all tabs
 **Decided:** One tab per browser holds a Web Lock and reads Telegram (getUpdates with an offset). It broadcasts updates to all tabs over a BroadcastChannel, and the visible tab steals the lock. A tap is handled only by the tab that sent that case.
 **Why:** Telegram allows one getUpdates reader at a time. Multiple tabs caused "Conflict: terminated by other getUpdates request" and lost taps. A rolling-window read (offset -100) was tried first and still conflicted.
